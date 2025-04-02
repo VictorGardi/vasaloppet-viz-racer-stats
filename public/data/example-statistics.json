@@ -1,0 +1,57 @@
+
+{
+  "finishTimes": {
+    "min": 15792,
+    "max": 32400,
+    "avg": 24300
+  },
+  "paces": {
+    "min": 175,
+    "max": 360,
+    "avg": 270
+  },
+  "totalFinishers": 200,
+  "dnfCount": 20,
+  "checkpointStats": {
+    "Smågan": {
+      "min": 1953,
+      "max": 3600,
+      "avg": 2400
+    },
+    "Mångsbodarna": {
+      "min": 4325,
+      "max": 7200,
+      "avg": 5400
+    },
+    "Risberg": {
+      "min": 6393,
+      "max": 10800,
+      "avg": 8100
+    },
+    "Evertsberg": {
+      "min": 8655,
+      "max": 14400,
+      "avg": 10800
+    },
+    "Oxberg": {
+      "min": 11325,
+      "max": 19800,
+      "avg": 15120
+    },
+    "Hökberg": {
+      "min": 12800,
+      "max": 21600,
+      "avg": 17280
+    },
+    "Eldris": {
+      "min": 14470,
+      "max": 25200,
+      "avg": 20520
+    },
+    "Finish (Mora)": {
+      "min": 15792,
+      "max": 32400,
+      "avg": 24300
+    }
+  }
+}

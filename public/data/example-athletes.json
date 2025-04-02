@@ -1,0 +1,195 @@
+
+[
+  {
+    "id": 1,
+    "bibNumber": 101,
+    "name": "Erik Johansson",
+    "club": "IFK Stockholm",
+    "nationality": "SWE",
+    "finishTime": "04:23:12",
+    "finishTimeSeconds": 15792,
+    "position": 1,
+    "gender": "M",
+    "category": "Men 1",
+    "year": 2023,
+    "checkpoints": [
+      {
+        "name": "Start (Sälen)",
+        "distance": 0,
+        "time": "00:00:00",
+        "timeSeconds": 0,
+        "position": 1,
+        "relativeToBest": 0,
+        "relativeToAverage": 0
+      },
+      {
+        "name": "Smågan",
+        "distance": 11,
+        "time": "00:32:45",
+        "timeSeconds": 1965,
+        "position": 2,
+        "relativeToBest": 12,
+        "relativeToAverage": -85
+      },
+      {
+        "name": "Mångsbodarna",
+        "distance": 24,
+        "time": "01:12:05",
+        "timeSeconds": 4325,
+        "position": 1,
+        "relativeToBest": 0,
+        "relativeToAverage": -120
+      },
+      {
+        "name": "Risberg",
+        "distance": 35,
+        "time": "01:46:33",
+        "timeSeconds": 6393,
+        "position": 1,
+        "relativeToBest": 0,
+        "relativeToAverage": -180
+      },
+      {
+        "name": "Evertsberg",
+        "distance": 48,
+        "time": "02:24:15",
+        "timeSeconds": 8655,
+        "position": 1,
+        "relativeToBest": 0,
+        "relativeToAverage": -215
+      },
+      {
+        "name": "Oxberg",
+        "distance": 62,
+        "time": "03:08:45",
+        "timeSeconds": 11325,
+        "position": 1,
+        "relativeToBest": 0,
+        "relativeToAverage": -240
+      },
+      {
+        "name": "Hökberg",
+        "distance": 71,
+        "time": "03:33:20",
+        "timeSeconds": 12800,
+        "position": 1,
+        "relativeToBest": 0,
+        "relativeToAverage": -260
+      },
+      {
+        "name": "Eldris",
+        "distance": 81,
+        "time": "04:01:10",
+        "timeSeconds": 14470,
+        "position": 1,
+        "relativeToBest": 0,
+        "relativeToAverage": -280
+      },
+      {
+        "name": "Finish (Mora)",
+        "distance": 90,
+        "time": "04:23:12",
+        "timeSeconds": 15792,
+        "position": 1,
+        "relativeToBest": 0,
+        "relativeToAverage": -300
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "bibNumber": 203,
+    "name": "Anna Karlsson",
+    "club": "Mora IK",
+    "nationality": "SWE",
+    "finishTime": "04:45:30",
+    "timeSeconds": 17130,
+    "position": 2,
+    "gender": "F",
+    "category": "Women 1",
+    "year": 2023,
+    "checkpoints": [
+      {
+        "name": "Start (Sälen)",
+        "distance": 0,
+        "time": "00:00:00",
+        "timeSeconds": 0,
+        "position": 3,
+        "relativeToBest": 0,
+        "relativeToAverage": 0
+      },
+      {
+        "name": "Smågan",
+        "distance": 11,
+        "time": "00:34:10",
+        "timeSeconds": 2050,
+        "position": 4,
+        "relativeToBest": 97,
+        "relativeToAverage": -40
+      },
+      {
+        "name": "Mångsbodarna",
+        "distance": 24,
+        "time": "01:14:45",
+        "timeSeconds": 4485,
+        "position": 3,
+        "relativeToBest": 160,
+        "relativeToAverage": -60
+      },
+      {
+        "name": "Risberg",
+        "distance": 35,
+        "time": "01:51:20",
+        "timeSeconds": 6680,
+        "position": 2,
+        "relativeToBest": 287,
+        "relativeToAverage": -80
+      },
+      {
+        "name": "Evertsberg",
+        "distance": 48,
+        "time": "02:31:45",
+        "timeSeconds": 9105,
+        "position": 2,
+        "relativeToBest": 450,
+        "relativeToAverage": -100
+      },
+      {
+        "name": "Oxberg",
+        "distance": 62,
+        "time": "03:18:20",
+        "timeSeconds": 11900,
+        "position": 2,
+        "relativeToBest": 575,
+        "relativeToAverage": -120
+      },
+      {
+        "name": "Hökberg",
+        "distance": 71,
+        "time": "03:45:10",
+        "timeSeconds": 13510,
+        "position": 2,
+        "relativeToBest": 710,
+        "relativeToAverage": -140
+      },
+      {
+        "name": "Eldris",
+        "distance": 81,
+        "time": "04:14:45",
+        "timeSeconds": 15285,
+        "position": 2,
+        "relativeToBest": 815,
+        "relativeToAverage": -160
+      },
+      {
+        "name": "Finish (Mora)",
+        "distance": 90,
+        "time": "04:45:30",
+        "timeSeconds": 17130,
+        "position": 2,
+        "relativeToBest": 1338,
+        "relativeToAverage": -180
+      }
+    ]
+  }
+]
