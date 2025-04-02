@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import Header from '@/components/Header';
 import AthleteCard from '@/components/AthleteCard';
@@ -21,14 +20,6 @@ const Index = () => {
     queryKey: ['athlete', 'bib', searchBib],
     queryFn: () => searchBib ? getAthleteByBib(searchBib) : null,
     enabled: searchBib !== null,
-    onSuccess: (data) => {
-      if (data) {
-        setAthlete(data);
-        toast.success(`Found athlete: ${data.name}`);
-      } else {
-        toast.error(`No athlete found with bib number ${searchBib}`);
-      }
-    }
   });
 
   // Query for searching athletes by name
@@ -36,18 +27,34 @@ const Index = () => {
     queryKey: ['athletes', 'search', searchQuery],
     queryFn: () => searchQuery ? searchAthletes(searchQuery) : [],
     enabled: searchQuery !== null,
-    onSuccess: (data) => {
-      if (data.length > 0) {
-        setAthlete(data[0]);
-        toast.success(`Found athlete: ${data[0].name}`);
-        if (data.length > 1) {
-          toast.info(`${data.length - 1} more athletes match your search`);
-        }
+  });
+
+  // Handle successful bib query
+  useEffect(() => {
+    if (bibQuery.data && !bibQuery.isPending) {
+      if (bibQuery.data) {
+        setAthlete(bibQuery.data);
+        toast.success(`Found athlete: ${bibQuery.data.name}`);
       } else {
+        toast.error(`No athlete found with bib number ${searchBib}`);
+      }
+    }
+  }, [bibQuery.data, bibQuery.isPending, searchBib]);
+
+  // Handle successful name query
+  useEffect(() => {
+    if (nameQuery.data && !nameQuery.isPending) {
+      if (nameQuery.data.length > 0) {
+        setAthlete(nameQuery.data[0]);
+        toast.success(`Found athlete: ${nameQuery.data[0].name}`);
+        if (nameQuery.data.length > 1) {
+          toast.info(`${nameQuery.data.length - 1} more athletes match your search`);
+        }
+      } else if (searchQuery) {
         toast.error(`No athletes found matching "${searchQuery}"`);
       }
     }
-  });
+  }, [nameQuery.data, nameQuery.isPending, searchQuery]);
 
   const handleSearch = (query: string) => {
     // Check if the query is a number (bib number)
@@ -62,7 +69,7 @@ const Index = () => {
     }
   };
 
-  const isLoading = bibQuery.isLoading || nameQuery.isLoading;
+  const isLoading = bibQuery.isPending || nameQuery.isPending;
 
   return (
     <div className="min-h-screen bg-vasasnow-dark">
