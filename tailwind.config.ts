@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,22 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Vasaloppet theme colors
+				vasablue: {
+					DEFAULT: '#0053A5',
+					light: '#2B7BD4',
+					dark: '#003B76'
+				},
+				vasagold: {
+					DEFAULT: '#F2BB30',
+					light: '#FFCE5C',
+					dark: '#D4A022'
+				},
+				vasasnow: {
+					DEFAULT: '#F0F4F8',
+					light: '#FFFFFF',
+					dark: '#DBE2ED'
 				}
 			},
 			borderRadius: {
