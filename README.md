@@ -1,73 +1,112 @@
-# Welcome to your Lovable project
 
-## Project info
+# Vasaloppet Analytics - Race Performance Visualization
 
-**URL**: https://lovable.dev/projects/5624a382-10e7-4a5a-b324-2fcbc11d490b
+## Overview
 
-## How can I edit this code?
+Vasaloppet Analytics is a web application that allows participants of the world's oldest, longest, and largest cross-country ski race (Vasaloppet) to visualize and analyze their race performance. Users can search for athletes by bib number or name, view detailed checkpoint statistics, and compare their performance against other participants with similar characteristics.
 
-There are several ways of editing your application.
+## Features
 
-**Use Lovable**
+- **Athlete search**: Look up racers by bib number or name
+- **Race analytics**: View performance metrics such as percentile ranking, time behind winner, and comparison to average
+- **Checkpoint analysis**: See detailed split times and positions at each checkpoint
+- **Data visualization**:
+  - Finish time distribution compared to similar participants
+  - Pace analysis by checkpoint (violin plot)
+  - Race progress chart showing position changes throughout the race
+- **Advanced filtering**: Compare performance with customizable groups:
+  - By gender
+  - By start group
+  - By age category
+  - Finishers only option
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5624a382-10e7-4a5a-b324-2fcbc11d490b) and start prompting.
+## Technologies Used
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Frontend**: React with TypeScript, built using Vite
+- **UI Components**: Shadcn UI components library (built on Radix UI primitives)
+- **State Management**: React Query for server state, React Context for local state
+- **Data Visualization**: D3.js and Recharts
+- **Data Collection**: Python scraper with Scrapy for fetching race data
+- **Containerization**: Docker for development and deployment
 
-**Use your preferred IDE**
+## Project Structure
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+vasaloppet-viz-racer-stats/
+├── public/           # Static assets and data files
+│   └── data/         # JSON data files for race results
+├── scraper/          # Python scraper for collecting race data
+│   ├── Dockerfile
+│   └── fetch_data.py
+├── src/
+│   ├── components/   # UI components
+│   ├── hooks/        # Custom React hooks
+│   ├── lib/          # Utility functions
+│   ├── pages/        # Page components
+│   ├── services/     # API and data service functions
+│   ├── types/        # TypeScript type definitions
+│   └── utils/        # Helper utilities
+└── docker-compose.yml
 ```
 
-**Edit a file directly in GitHub**
+## How It Works
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. The scraper collects race data from Vasaloppet's results website
+2. The data is transformed and stored as JSON files
+3. The web application loads this data and provides an interactive interface for analysis
+4. Users can search for athletes and visualize their performance relative to others
 
-**Use GitHub Codespaces**
+## Development
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Prerequisites
 
-## What technologies are used for this project?
+- Node.js 16+
+- Docker and Docker Compose
 
-This project is built with:
+### Running Locally
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/vasaloppet-viz-racer-stats.git
+   cd vasaloppet-viz-racer-stats
+   ```
 
-## How can I deploy this project?
+2. Start the development server using Docker:
+   ```bash
+   docker-compose up
+   ```
 
-Simply open [Lovable](https://lovable.dev/projects/5624a382-10e7-4a5a-b324-2fcbc11d490b) and click on Share -> Publish.
+3. Access the application at http://localhost:8080
 
-## Can I connect a custom domain to my Lovable project?
+### Running the Scraper
 
-Yes it is!
+To fetch new race data:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```bash
+docker-compose run --rm scraper
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This will populate the `data` directory with results from available races.
+
+## Deployment
+
+The application can be deployed as a static site on platforms like Netlify, Vercel, or GitHub Pages. The scraper can be run periodically to update the race data.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- Data provided by [Vasaloppet](https://results.vasaloppet.se/)
+- Built with [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/), and [Vite](https://vitejs.dev/)
+- UI components from [shadcn/ui](https://ui.shadcn.com/)
+- Charts built with [D3.js](https://d3js.org/) and [Recharts](https://recharts.org/)
+
+---
+
+*Note: This application is not officially affiliated with Vasaloppet.*
