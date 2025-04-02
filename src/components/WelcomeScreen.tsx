@@ -1,19 +1,108 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useQuery } from '@tanstack/react-query';
-import { getTopAthletes, loadRaceStatistics } from '@/services/dataService';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getTopAthletes, loadRaceStatistics, getAvailableEvents, setSelectedEvent } from '@/services/vasaloppetDataService';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const WelcomeScreen: React.FC = () => {
+  const queryClient = useQueryClient();
+  const [selectedEventLoaded, setSelectedEventLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [eventIndex, setEventIndex] = useState<Record<string, Record<string, string>>>({});
+  const [years, setYears] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedEventId, setSelectedEventId] = useState<string>('');
+
+  // Load available events
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const index = await getAvailableEvents();
+        setEventIndex(index);
+        
+        // Sort years in descending order (newest first)
+        const sortedYears = Object.keys(index).sort((a, b) => parseInt(b) - parseInt(a));
+        setYears(sortedYears);
+        
+        if (sortedYears.length > 0) {
+          const year = sortedYears[0];
+          setSelectedYear(year);
+          
+          // Try to find the main Vasaloppet event first, or use the first event
+          const events = Object.keys(index[year]);
+          if (events.length > 0) {
+            const defaultEvent = events.find(e => e.startsWith('VL_')) || events[0];
+            setSelectedEventId(defaultEvent);
+            await setSelectedEvent(year, defaultEvent);
+            setSelectedEventLoaded(true);
+          }
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading events:', error);
+        setLoading(false);
+      }
+    };
+    
+    loadEvents();
+  }, []);
+
+  // When year changes, select first event for that year
+  useEffect(() => {
+    if (selectedYear && eventIndex[selectedYear]) {
+      const events = Object.keys(eventIndex[selectedYear]);
+      if (events.length > 0) {
+        const defaultEvent = events.find(e => e.startsWith('VL_')) || events[0];
+        setSelectedEventId(defaultEvent);
+      }
+    }
+  }, [selectedYear, eventIndex]);
+
+  const handleSelectYear = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const year = e.target.value;
+    console.log('Selected year:', year);
+    if (years.includes(year)) {
+      setSelectedYear(year);
+    }
+  };
+
+  const handleSelectEvent = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const eventId = e.target.value;
+    console.log('Selected event:', eventId);
+    setSelectedEventId(eventId);
+  };
+
+  const handleLoadEvent = async () => {
+    if (selectedYear && selectedEventId) {
+      console.log('Loading event data for:', selectedYear, selectedEventId);
+      await setSelectedEvent(selectedYear, selectedEventId);
+      // Invalidate queries to reload data with the new event
+      queryClient.invalidateQueries({ queryKey: ['raceStatistics'] });
+      queryClient.invalidateQueries({ queryKey: ['topMaleAthletes'] });
+      queryClient.invalidateQueries({ queryKey: ['topFemaleAthletes'] });
+      setSelectedEventLoaded(true);
+    }
+  };
+
   const { data: statistics, isLoading: statsLoading } = useQuery({
     queryKey: ['raceStatistics'],
-    queryFn: loadRaceStatistics
+    queryFn: loadRaceStatistics,
+    enabled: selectedEventLoaded
   });
 
-  const { data: topAthletes, isLoading: athletesLoading } = useQuery({
-    queryKey: ['topAthletes'],
-    queryFn: () => getTopAthletes(5)
+  const { data: topMaleAthletes, isLoading: maleAthletesLoading } = useQuery({
+    queryKey: ['topMaleAthletes'],
+    queryFn: () => getTopAthletes(5, 'M'),
+    enabled: selectedEventLoaded
+  });
+
+  const { data: topFemaleAthletes, isLoading: femaleAthletesLoading } = useQuery({
+    queryKey: ['topFemaleAthletes'],
+    queryFn: () => getTopAthletes(5, 'F'),
+    enabled: selectedEventLoaded
   });
 
   const formatTime = (seconds: number): string => {
@@ -23,114 +112,198 @@ const WelcomeScreen: React.FC = () => {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  const isLoading = statsLoading || athletesLoading;
-
-  if (isLoading) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-xl text-vasablue-dark">Loading race data...</p>
-      </div>
-    );
-  }
+  const isDataLoading = statsLoading || maleAthletesLoading || femaleAthletesLoading;
 
   return (
     <div className="space-y-8">
-      <div className="text-center my-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-vasablue-dark">
-          Welcome to Vasaloppet Analytics
-        </h1>
-        <p className="text-lg text-gray-600 mt-2">
-          Search for a bib number above to analyze a racer's performance
-        </p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Vasaloppet Data Explorer</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4">
+            Welcome to the Vasaloppet Data Explorer. This application allows you to analyze results from the world's oldest, longest, and largest cross-country ski race.
+          </p>
+          <p>
+            Select an event below to get started, or search for a specific athlete using the search box above.
+          </p>
+        </CardContent>
+      </Card>
 
-      {statistics && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="bg-white shadow-md">
-            <CardHeader className="bg-vasablue-light text-white">
-              <CardTitle className="text-center">Race Overview</CardTitle>
+      <Card>
+        <CardContent className="pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="year-select">Year</Label>
+              {loading ? (
+                <div>Loading years...</div>
+              ) : (
+                <select
+                  id="year-select"
+                  value={selectedYear}
+                  onChange={handleSelectYear}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {years.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="event-select">Event</Label>
+              {loading ? (
+                <div>Loading events...</div>
+              ) : (
+                <select
+                  id="event-select"
+                  value={selectedEventId}
+                  onChange={handleSelectEvent}
+                  disabled={!selectedYear || !eventIndex[selectedYear]}
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {selectedYear && eventIndex[selectedYear] &&
+                    Object.entries(eventIndex[selectedYear]).map(([id, name]) => (
+                      <option key={id} value={id}>{name}</option>
+                    ))
+                  }
+                </select>
+              )}
+            </div>
+
+            <div className="space-y-2 flex items-end">
+              <Button
+                onClick={handleLoadEvent}
+                disabled={!selectedYear || !selectedEventId || loading}
+                className="w-full"
+              >
+                Load Event Data
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {isDataLoading && selectedEventLoaded ? (
+        <div className="text-center py-12">
+          <p className="text-xl text-vasablue-dark">Loading race data...</p>
+        </div>
+      ) : selectedEventLoaded && !statistics ? (
+        <div className="text-center py-12 bg-red-100 p-4 rounded">
+          <p className="text-xl text-red-600">Error loading data. Please check the browser console for errors.</p>
+        </div>
+      ) : statistics && topMaleAthletes && topFemaleAthletes ? (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Race Overview</CardTitle>
             </CardHeader>
-            <CardContent className="pt-4">
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Total Finishers</p>
-                  <p className="text-2xl font-bold text-vasablue">
-                    {statistics.totalFinishers}
-                  </p>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="border rounded p-4 text-center">
+                  <h3 className="text-sm uppercase text-gray-500 mb-1">Participants</h3>
+                  <p className="text-2xl font-bold">{statistics.totalFinishers}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Did Not Finish (DNF)</p>
-                  <p className="text-2xl font-bold text-vasablue">
-                    {statistics.dnfCount}
-                  </p>
+                <div className="border rounded p-4 text-center">
+                  <h3 className="text-sm uppercase text-gray-500 mb-1">Winner Time</h3>
+                  <p className="text-2xl font-bold">{formatTime(statistics.finishTimes.min)}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Winning Time</p>
-                  <p className="text-2xl font-bold text-vasablue">
-                    {formatTime(statistics.finishTimes.min)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Average Time</p>
-                  <p className="text-2xl font-bold text-vasablue">
-                    {formatTime(statistics.finishTimes.avg)}
-                  </p>
+                <div className="border rounded p-4 text-center">
+                  <h3 className="text-sm uppercase text-gray-500 mb-1">Average Time</h3>
+                  <p className="text-2xl font-bold">{formatTime(statistics.finishTimes.avg)}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {topAthletes && (
-            <Card className="md:col-span-2 bg-white shadow-md">
-              <CardHeader className="bg-vasablue-light text-white">
-                <CardTitle className="text-center">Top 5 Finishers</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="overflow-x-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Finishers</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="men" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="men">Men</TabsTrigger>
+                  <TabsTrigger value="women">Women</TabsTrigger>
+                </TabsList>
+                <TabsContent value="men">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Position</TableHead>
                         <TableHead>Bib</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Nationality</TableHead>
-                        <TableHead>Finish Time</TableHead>
+                        <TableHead>Start Group</TableHead>
+                        <TableHead>Time</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {topAthletes.map((athlete) => (
-                        <TableRow key={athlete.id}>
-                          <TableCell className="font-medium">#{athlete.position}</TableCell>
-                          <TableCell>{athlete.bibNumber}</TableCell>
-                          <TableCell>{athlete.name}</TableCell>
-                          <TableCell>{athlete.nationality}</TableCell>
-                          <TableCell className="font-bold">{athlete.finishTime}</TableCell>
+                      {topMaleAthletes && topMaleAthletes.length > 0 ? (
+                        topMaleAthletes.map((athlete) => (
+                          <TableRow key={athlete.id}>
+                            <TableCell>#{athlete.position}</TableCell>
+                            <TableCell>
+                              {athlete.bibNumber && athlete.bibNumber !== "?" 
+                                ? athlete.bibNumber 
+                                : <span className="text-gray-500">-</span>}
+                            </TableCell>
+                            <TableCell>{athlete.startGroup || "Unknown"}</TableCell>
+                            <TableCell>
+                              {athlete.finishTimeSeconds > 0 
+                                ? athlete.finishTime 
+                                : <span className="text-red-500">DNF</span>}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center py-4">No male finishers found</TableCell>
                         </TableRow>
-                      ))}
+                      )}
                     </TableBody>
                   </Table>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
-
-      <Card className="bg-vasasnow shadow-md border border-vasablue-light/20">
-        <CardContent className="p-6">
-          <h2 className="text-xl font-bold text-vasablue-dark mb-2">About Vasaloppet</h2>
-          <p className="text-gray-700">
-            Vasaloppet is one of the world's oldest, longest, and biggest cross-country ski races.
-            It is held annually on the first Sunday of March in northwestern Dalarna, Sweden, and covers a distance of 90 kilometers between the village of Sälen and town of Mora.
-          </p>
-          <p className="text-gray-700 mt-3">
-            The race follows the route used by Gustav Vasa in 1520 when he was fleeing from Christian II's soldiers during the war between Sweden and Denmark.
-          </p>
-          <p className="text-gray-700 mt-3">
-            Search for a bib number above to analyze a racer's performance throughout the 90km journey!
-          </p>
-        </CardContent>
-      </Card>
+                </TabsContent>
+                <TabsContent value="women">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Position</TableHead>
+                        <TableHead>Bib</TableHead>
+                        <TableHead>Start Group</TableHead>
+                        <TableHead>Time</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {topFemaleAthletes && topFemaleAthletes.length > 0 ? (
+                        topFemaleAthletes.map((athlete) => (
+                          <TableRow key={athlete.id}>
+                            <TableCell>#{athlete.position}</TableCell>
+                            <TableCell>
+                              {athlete.bibNumber && athlete.bibNumber !== "?" 
+                                ? athlete.bibNumber 
+                                : <span className="text-gray-500">-</span>}
+                            </TableCell>
+                            <TableCell>{athlete.startGroup || "Unknown"}</TableCell>
+                            <TableCell>
+                              {athlete.finishTimeSeconds > 0 
+                                ? athlete.finishTime 
+                                : <span className="text-red-500">DNF</span>}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center py-4">No female finishers found</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </>
+      ) : null}
     </div>
   );
 };

@@ -1,7 +1,6 @@
-
 export interface AthleteResult {
-  id: number;
-  bibNumber: number;
+  id: string | number;
+  bibNumber: string;
   name: string;
   club: string;
   nationality: string;
@@ -10,7 +9,9 @@ export interface AthleteResult {
   position: number;
   gender: "M" | "F";
   category: string;
+  startGroup: string; // The start group (e.g. "Elit", "Led 1", etc.)
   year: number;
+  eventId: string; // The event ID (e.g. VL_2023)
   checkpoints: CheckpointTime[];
 }
 
