@@ -21,4 +21,15 @@ export default defineConfig(({ mode }) => ({
     },
   },
   base: process.env.NODE_ENV === 'production' ? '/vasaloppet-analytics/' : '/',
+  build: {
+    rollupOptions: {
+      output: {
+        // Ensure proper content type is set for JavaScript files
+        format: 'es',
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]'
+      }
+    }
+  }
 }));
