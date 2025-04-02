@@ -60,14 +60,13 @@ vasaloppet-viz-racer-stats/
 
 ### Prerequisites
 
-- Node.js 16+
 - Docker and Docker Compose
 
 ### Running Locally
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/vasaloppet-viz-racer-stats.git
+   git clone https://github.com/VictorGardi/vasaloppet-viz-racer-stats.git
    cd vasaloppet-viz-racer-stats
    ```
 
@@ -76,7 +75,7 @@ vasaloppet-viz-racer-stats/
    docker-compose up
    ```
 
-3. Access the application at http://localhost:8080
+3. Access the application at http://localhost:8081
 
 ### Running the Scraper
 
